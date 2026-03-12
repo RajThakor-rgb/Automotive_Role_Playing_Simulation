@@ -228,6 +228,13 @@
   }
   .btn-outline:hover { background: var(--surface2); }
 
+  .btn-back {
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 0.1em;
+    padding: 0.5rem 1.25rem; cursor: pointer; transition: all 0.2s; margin-top: 1rem;
+  }
+  .btn-back:hover { color: var(--text); border-color: var(--text-dim); }
+
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @media (max-width: 600px) {
     .game-topbar { padding: 0.75rem 1rem; }
@@ -262,6 +269,7 @@
   <div class="section-header" style="margin-top:3rem">
     <h2>WHO ARE YOU?</h2>
     <p>Each role faces the same crisis from a different angle. Choose wisely.</p>
+    <button class="btn-back" onclick="showScreen('intro')">&larr; BACK TO START</button>
   </div>
   <div class="roles-grid">
     <div class="role-card gov" onclick="selectRole('gov')">
@@ -306,7 +314,10 @@
       <span class="progress-label">SCENARIO</span>
       <div class="progress-dots" id="progress-dots"></div>
     </div>
-    <div class="score-display"><span>SCORE </span><span id="score-counter">0</span></div>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button class="btn-back" style="margin-top:0;font-size:0.7rem;padding:0.35rem 1rem" onclick="showScreen('role-select')">&larr; CHANGE ROLE</button>
+      <div class="score-display"><span>SCORE </span><span id="score-counter">0</span></div>
+    </div>
   </div>
   <div class="game-body">
     <div class="scenario-num" id="scenario-num">Scenario 1 of 5</div>
