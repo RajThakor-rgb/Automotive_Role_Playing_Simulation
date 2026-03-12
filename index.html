@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTONOMOUS — AI Risk Simulation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #1a1d24;
+    --border: #2a2d36;
+    --accent-gov: #00c9a7;
+    --accent-corp: #f5a623;
+    --accent-pub: #e84393;
+    --accent-eng: #7b61ff;
+    --text: #f0f2f8;
+    --text-dim: #7a7f94;
+    --danger: #ff4d4d;
+    --success: #00e87a;
+    --warning: #ffc44d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,201,167,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,201,167,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* INTRO */
+  #intro { align-items: center; justify-content: center; padding: 2rem; text-align: center; }
+  .intro-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.25em;
+    color: var(--accent-gov); text-transform: uppercase; margin-bottom: 1.5rem;
+    opacity: 0; animation: fadeUp 0.6s 0.2s forwards;
+  }
+  .intro-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(4rem, 12vw, 9rem);
+    line-height: 0.9; letter-spacing: 0.02em; margin-bottom: 1rem;
+    opacity: 0; animation: fadeUp 0.6s 0.4s forwards;
+  }
+  .intro-title span {
+    display: block; font-size: clamp(1.2rem, 4vw, 2rem); color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif; font-weight: 300; letter-spacing: 0.05em; margin-top: 0.5rem;
+  }
+  .intro-desc {
+    max-width: 520px; color: var(--text-dim); font-size: 0.95rem; line-height: 1.7;
+    margin: 1.5rem auto 2.5rem; opacity: 0; animation: fadeUp 0.6s 0.6s forwards;
+  }
+  .badge-row {
+    display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 3rem; opacity: 0; animation: fadeUp 0.6s 0.7s forwards;
+  }
+  .badge {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em;
+    padding: 0.35rem 0.8rem; border-radius: 2px; text-transform: uppercase; border: 1px solid;
+  }
+  .badge.coso { color: var(--accent-gov); border-color: var(--accent-gov); }
+  .badge.iso { color: var(--accent-corp); border-color: var(--accent-corp); }
+  .badge.oecd { color: var(--accent-pub); border-color: var(--accent-pub); }
+  .badge.tricker { color: var(--accent-eng); border-color: var(--accent-eng); }
+  .btn-primary {
+    background: var(--accent-gov); color: #000; border: none;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.12em;
+    padding: 0.9rem 2.5rem; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s; opacity: 0; animation: fadeUp 0.6s 0.8s forwards;
+  }
+  .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+
+  /* ROLE SELECT */
+  #role-select { padding: 3rem 2rem; align-items: center; }
+  .section-header { text-align: center; margin-bottom: 3rem; }
+  .section-header h2 {
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 6vw, 4rem); line-height: 1; margin-bottom: 0.5rem;
+  }
+  .section-header p { color: var(--text-dim); font-size: 0.9rem; }
+  .roles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; max-width: 1000px; width: 100%; }
+  .role-card {
+    background: var(--surface); border: 1px solid var(--border); padding: 2rem; cursor: pointer;
+    position: relative; overflow: hidden; transition: all 0.25s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .role-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s; }
+  .role-card:hover { transform: translateY(-4px); }
+  .role-card:hover::before { opacity: 1; }
+  .role-card.gov { border-color: var(--accent-gov); }
+  .role-card.gov::before { background: linear-gradient(135deg, rgba(0,201,167,0.08) 0%, transparent 60%); }
+  .role-card.gov:hover { box-shadow: 0 8px 32px rgba(0,201,167,0.2); }
+  .role-card.corp { border-color: var(--accent-corp); }
+  .role-card.corp::before { background: linear-gradient(135deg, rgba(245,166,35,0.08) 0%, transparent 60%); }
+  .role-card.corp:hover { box-shadow: 0 8px 32px rgba(245,166,35,0.2); }
+  .role-card.pub { border-color: var(--accent-pub); }
+  .role-card.pub::before { background: linear-gradient(135deg, rgba(232,67,147,0.08) 0%, transparent 60%); }
+  .role-card.pub:hover { box-shadow: 0 8px 32px rgba(232,67,147,0.2); }
+  .role-card.eng { border-color: var(--accent-eng); }
+  .role-card.eng::before { background: linear-gradient(135deg, rgba(123,97,255,0.08) 0%, transparent 60%); }
+  .role-card.eng:hover { box-shadow: 0 8px 32px rgba(123,97,255,0.2); }
+  .role-icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+  .role-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+  .role-org { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; }
+  .role-card.gov .role-org { color: var(--accent-gov); }
+  .role-card.corp .role-org { color: var(--accent-corp); }
+  .role-card.pub .role-org { color: var(--accent-pub); }
+  .role-card.eng .role-org { color: var(--accent-eng); }
+  .role-desc { color: var(--text-dim); font-size: 0.85rem; line-height: 1.6; margin-bottom: 1.5rem; }
+  .role-stakes { font-size: 0.8rem; padding: 0.5rem 0.75rem; border-radius: 2px; font-weight: 500; display: inline-block; }
+  .role-card.gov .role-stakes { background: rgba(0,201,167,0.12); color: var(--accent-gov); }
+  .role-card.corp .role-stakes { background: rgba(245,166,35,0.12); color: var(--accent-corp); }
+  .role-card.pub .role-stakes { background: rgba(232,67,147,0.12); color: var(--accent-pub); }
+  .role-card.eng .role-stakes { background: rgba(123,97,255,0.12); color: var(--accent-eng); }
+
+  /* GAME */
+  #game { padding: 0; flex-direction: column; }
+  .game-topbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem; position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-role { display: flex; align-items: center; gap: 0.75rem; }
+  .topbar-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
+  .topbar-role-name { font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .topbar-progress { display: flex; align-items: center; gap: 1rem; }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.1em; }
+  .progress-dots { display: flex; gap: 4px; }
+  .pdot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.3s; }
+  .pdot.done { background: var(--accent-gov); }
+  .pdot.active { background: var(--text); }
+  .score-display { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.05em; }
+  .score-display span { color: var(--text-dim); font-size: 0.8rem; font-family: 'DM Mono', monospace; letter-spacing: 0.1em; margin-right: 0.3rem; }
+  .game-body { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 3rem 2rem; max-width: 800px; margin: 0 auto; width: 100%; }
+  .scenario-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 1rem; width: 100%; }
+  .scenario-card {
+    background: var(--surface); border: 1px solid var(--border); padding: 2rem; width: 100%;
+    margin-bottom: 2rem; position: relative; animation: fadeUp 0.4s forwards;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  }
+  .scenario-tag {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em;
+    text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 2px; display: inline-block; margin-bottom: 1rem;
+  }
+  .scenario-headline { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.5rem, 4vw, 2.2rem); line-height: 1.1; margin-bottom: 1rem; }
+  .scenario-body { color: var(--text-dim); font-size: 0.9rem; line-height: 1.8; margin-bottom: 1.5rem; }
+  .scenario-framework { border-top: 1px solid var(--border); padding-top: 1rem; font-size: 0.8rem; color: var(--text-dim); }
+  .scenario-framework strong { color: var(--text); font-weight: 500; }
+  .choices-grid { display: grid; gap: 1rem; width: 100%; }
+  .choice-btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: 1.25rem 1.5rem; text-align: left; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; line-height: 1.5; transition: all 0.2s; position: relative;
+    display: flex; align-items: flex-start; gap: 1rem;
+  }
+  .choice-btn:hover:not(:disabled) { background: var(--surface); border-color: var(--text-dim); transform: translateX(4px); }
+  .choice-btn:disabled { cursor: default; }
+  .choice-letter { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; min-width: 24px; color: var(--text-dim); transition: color 0.2s; }
+  .choice-btn:hover:not(:disabled) .choice-letter { color: var(--text); }
+  .choice-btn.correct { background: rgba(0,232,122,0.1); border-color: var(--success); }
+  .choice-btn.correct .choice-letter { color: var(--success); }
+  .choice-btn.wrong { background: rgba(255,77,77,0.1); border-color: var(--danger); }
+  .choice-btn.wrong .choice-letter { color: var(--danger); }
+  .choice-btn.missed { background: rgba(0,232,122,0.05); border-color: rgba(0,232,122,0.3); }
+  .feedback-panel { display: none; background: var(--surface2); border: 1px solid var(--border); padding: 1.5rem; width: 100%; margin-top: 1.5rem; animation: fadeUp 0.3s forwards; }
+  .feedback-panel.show { display: block; }
+  .feedback-verdict { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .feedback-verdict.good { color: var(--success); }
+  .feedback-verdict.bad { color: var(--danger); }
+  .feedback-text { color: var(--text-dim); font-size: 0.875rem; line-height: 1.7; margin-bottom: 1rem; }
+  .feedback-framework-ref { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; padding: 0.5rem 0.75rem; border-left: 2px solid var(--accent-gov); color: var(--text-dim); margin-bottom: 1rem; }
+  .points-pill { display: inline-block; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.05em; padding: 0.3rem 0.8rem; border-radius: 2px; margin-bottom: 1rem; }
+  .points-pill.pos { background: rgba(0,232,122,0.15); color: var(--success); }
+  .points-pill.neg { background: rgba(255,77,77,0.15); color: var(--danger); }
+  .points-pill.neu { background: rgba(255,196,77,0.15); color: var(--warning); }
+  .btn-next {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em;
+    padding: 0.75rem 2rem; cursor: pointer; transition: all 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .btn-next:hover { background: var(--text); color: var(--bg); }
+
+  /* RESULTS */
+  #results { align-items: center; justify-content: center; padding: 3rem 2rem; text-align: center; }
+  .results-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.25em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 1rem; }
+  .results-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 8vw, 6rem); line-height: 0.9; margin-bottom: 0.5rem; }
+  .results-role { font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2.5rem; }
+  .score-big { font-family: 'Bebas Neue', sans-serif; font-size: clamp(5rem, 15vw, 10rem); line-height: 1; margin-bottom: 0.5rem; }
+  .score-max { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 2rem; }
+  .verdict-banner {
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.2rem, 3vw, 2rem); letter-spacing: 0.05em;
+    padding: 1rem 2rem; margin-bottom: 2rem; border: 2px solid;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  }
+  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; max-width: 800px; width: 100%; margin-bottom: 2rem; text-align: left; }
+  .insight-card { background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; }
+  .insight-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.4rem; }
+  .insight-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.05em; }
+  .frameworks-learned { max-width: 600px; width: 100%; margin-bottom: 2rem; text-align: left; }
+  .fw-title { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1rem; }
+  .fw-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .fw-item { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+  .fw-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 0.4rem; flex-shrink: 0; }
+  .share-section { background: var(--surface); border: 1px solid var(--border); padding: 1.25rem 1.5rem; max-width: 600px; width: 100%; margin-bottom: 2rem; text-align: left; }
+  .share-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.75rem; }
+  .share-text { font-size: 0.8rem; color: var(--text); line-height: 1.5; font-family: 'DM Mono', monospace; }
+  .actions-row { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .btn-outline {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em;
+    padding: 0.75rem 2rem; cursor: pointer; transition: all 0.2s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .btn-outline:hover { background: var(--surface2); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) {
+    .game-topbar { padding: 0.75rem 1rem; }
+    .game-body { padding: 1.5rem 1rem; }
+    .scenario-card { padding: 1.25rem; }
+    .choice-btn { padding: 1rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <p class="intro-eyebrow">🚗 ULaw Business School · AI Innovation &amp; Transformation · Unit 4</p>
+  <h1 class="intro-title">AUTONOMOUS<span>AI Risk Simulation Game</span></h1>
+  <p class="intro-desc">
+    A self-driving car has just caused its first fatality in London. The city is watching.
+    The boardroom is in crisis. The algorithm is silent. <strong>You decide what happens next.</strong>
+    <br><br>Pick your role. Face 5 real-world AI risk scenarios. See how your decisions stack up.
+  </p>
+  <div class="badge-row">
+    <span class="badge coso">COSO ERM</span>
+    <span class="badge iso">ISO 31000</span>
+    <span class="badge oecd">OECD AI Principles</span>
+    <span class="badge tricker">Tricker's Governance</span>
+  </div>
+  <button class="btn-primary" onclick="showScreen('role-select')">CHOOSE YOUR ROLE &rarr;</button>
+</div>
+
+<!-- ROLE SELECT -->
+<div id="role-select" class="screen">
+  <div class="section-header" style="margin-top:3rem">
+    <h2>WHO ARE YOU?</h2>
+    <p>Each role faces the same crisis from a different angle. Choose wisely.</p>
+  </div>
+  <div class="roles-grid">
+    <div class="role-card gov" onclick="selectRole('gov')">
+      <span class="role-icon">🏛️</span>
+      <div class="role-title">Transport Commissioner</div>
+      <div class="role-org">Local Government · Regulator</div>
+      <p class="role-desc">You oversee road safety policy for London. Autonomous vehicles are on your streets. The public wants answers.</p>
+      <span class="role-stakes">Stakes: Public safety, policy, trust</span>
+    </div>
+    <div class="role-card corp" onclick="selectRole('corp')">
+      <span class="role-icon">💼</span>
+      <div class="role-title">CEO</div>
+      <div class="role-org">Corporate Leadership · Uber/Tesla</div>
+      <p class="role-desc">Your autonomous vehicle fleet is under fire. Shareholders are panicking. Your AI governance is being questioned.</p>
+      <span class="role-stakes">Stakes: Shareholder value, liability, brand</span>
+    </div>
+    <div class="role-card pub" onclick="selectRole('pub')">
+      <span class="role-icon">👤</span>
+      <div class="role-title">Everyday Passenger</div>
+      <div class="role-org">Member of the Public · Citizen</div>
+      <p class="role-desc">You use autonomous ride-hailing daily. You trusted the system. Now you're questioning everything — consent, data, safety.</p>
+      <span class="role-stakes">Stakes: Safety, privacy, civil rights</span>
+    </div>
+    <div class="role-card eng" onclick="selectRole('eng')">
+      <span class="role-icon">⚙️</span>
+      <div class="role-title">AI Systems Engineer</div>
+      <div class="role-org">AI Developer · Technical Lead</div>
+      <p class="role-desc">You built part of the decision-making system. You flagged risks internally. You were overruled. Now your name is in the incident report.</p>
+      <span class="role-stakes">Stakes: Ethics, accountability, career</span>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="game-topbar">
+    <div class="topbar-role">
+      <div class="topbar-dot" id="role-dot"></div>
+      <div class="topbar-role-name" id="topbar-role-name">—</div>
+    </div>
+    <div class="topbar-progress">
+      <span class="progress-label">SCENARIO</span>
+      <div class="progress-dots" id="progress-dots"></div>
+    </div>
+    <div class="score-display"><span>SCORE </span><span id="score-counter">0</span></div>
+  </div>
+  <div class="game-body">
+    <div class="scenario-num" id="scenario-num">Scenario 1 of 5</div>
+    <div class="scenario-card" id="scenario-card">
+      <span class="scenario-tag" id="scenario-tag"></span>
+      <div class="scenario-headline" id="scenario-headline"></div>
+      <div class="scenario-body" id="scenario-body"></div>
+      <div class="scenario-framework" id="scenario-framework"></div>
+    </div>
+    <div class="choices-grid" id="choices-grid"></div>
+    <div class="feedback-panel" id="feedback-panel">
+      <div class="points-pill" id="feedback-points"></div>
+      <div class="feedback-verdict" id="feedback-verdict"></div>
+      <div class="feedback-text" id="feedback-text"></div>
+      <div class="feedback-framework-ref" id="feedback-framework-ref"></div>
+      <button class="btn-next" id="btn-next" onclick="nextScenario()">NEXT SCENARIO &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="screen">
+  <div class="results-eyebrow">Simulation Complete</div>
+  <h2 class="results-title">RESULTS</h2>
+  <div class="results-role" id="results-role"></div>
+  <div class="score-big" id="results-score">0</div>
+  <div class="score-max">out of 500 points</div>
+  <div class="verdict-banner" id="verdict-banner"></div>
+  <div class="insight-grid" id="insight-grid"></div>
+  <div class="frameworks-learned">
+    <div class="fw-title">Frameworks Referenced in This Simulation</div>
+    <div class="fw-list">
+      <div class="fw-item"><div class="fw-dot" style="background:var(--accent-gov)"></div><span><strong style="color:var(--text)">COSO ERM</strong> — Enterprise risk management integrated with organisational objectives and board oversight.</span></div>
+      <div class="fw-item"><div class="fw-dot" style="background:var(--accent-corp)"></div><span><strong style="color:var(--text)">ISO 31000</strong> — International standard for risk management principles, framework, and process.</span></div>
+      <div class="fw-item"><div class="fw-dot" style="background:var(--accent-pub)"></div><span><strong style="color:var(--text)">OECD AI Principles</strong> — Transparency, accountability, human oversight, and trustworthiness in AI deployment.</span></div>
+      <div class="fw-item"><div class="fw-dot" style="background:var(--accent-eng)"></div><span><strong style="color:var(--text)">Tricker's Governance</strong> — Board-level accountability, strategic oversight, and director responsibility.</span></div>
+    </div>
+  </div>
+  <div class="share-section">
+    <div class="share-label">Your Result — Share with your class</div>
+    <div class="share-text" id="share-text"></div>
+  </div>
+  <div class="actions-row">
+    <button class="btn-primary" onclick="restartGame()">PLAY AGAIN &rarr;</button>
+    <button class="btn-outline" onclick="showScreen('role-select')">SWITCH ROLE</button>
+  </div>
+</div>
+
+<script>
+const roles = {
+  gov:  { name: 'Transport Commissioner', org: 'Local Government', color: '#00c9a7', icon: '🏛️' },
+  corp: { name: 'CEO', org: 'Uber / Tesla Leadership', color: '#f5a623', icon: '💼' },
+  pub:  { name: 'Everyday Passenger', org: 'Member of the Public', color: '#e84393', icon: '👤' },
+  eng:  { name: 'AI Systems Engineer', org: 'Technical Lead', color: '#7b61ff', icon: '⚙️' }
+};
+
+const scenarios = [
+  {
+    tag: '🚨 Incident Response',
+    tagColor: '#ff4d4d',
+    headline: 'The Algorithm Made a Fatal Choice',
+    body: 'An autonomous vehicle operating in East London failed to brake in time, resulting in the death of a cyclist. Initial telemetry shows the AI classified the cyclist as a "stationary object" due to a sensor malfunction in rain. The incident is now public.',
+    framework: 'Framework lens: <strong>COSO ERM</strong> — Risk response and incident protocols; who owns the risk register for autonomous systems?',
+    roleContext: {
+      gov:  'As Commissioner, you must respond publicly within the hour.',
+      corp: 'As CEO, your legal team wants you to say nothing. Your ethics team disagrees.',
+      pub:  'As a passenger, you have ridden this exact service 40 times this month.',
+      eng:  'You flagged sensor accuracy in rain conditions 6 months ago. In writing.'
+    },
+    choices: {
+      gov: [
+        { text: 'Immediately suspend all autonomous vehicle operations in London pending a full safety review.', correct: true, points: 100 },
+        { text: 'Issue a "monitoring closely" statement and wait for the company\'s own investigation.', correct: false, points: -20 },
+        { text: 'Hold a press conference blaming the company and calling for criminal prosecution immediately.', correct: false, points: 10 },
+        { text: 'Quietly request data from the company before taking any public position.', correct: false, points: 40 }
+      ],
+      corp: [
+        { text: 'Immediately publish full telemetry data, suspend the route, and announce an independent inquiry.', correct: true, points: 100 },
+        { text: 'Release a brief condolence statement. Lawyers handle the rest.', correct: false, points: -10 },
+        { text: 'Blame the sensor hardware supplier and redirect media attention.', correct: false, points: -30 },
+        { text: 'Offer a financial settlement to the family quietly before media escalation.', correct: false, points: 20 }
+      ],
+      pub: [
+        { text: 'Contact your local councillor and the transport regulator to demand immediate suspension of the service.', correct: true, points: 100 },
+        { text: 'Post on social media and hope it goes viral.', correct: false, points: 10 },
+        { text: 'Stop using the service personally but take no further action.', correct: false, points: 30 },
+        { text: 'Wait for the official inquiry — the system will investigate itself.', correct: false, points: -10 }
+      ],
+      eng: [
+        { text: 'Submit your original risk memo to the regulator and make it public — whistleblower protections apply.', correct: true, points: 100 },
+        { text: 'Delete any records of the flagged report to protect yourself.', correct: false, points: -50 },
+        { text: 'Tell your manager privately and let them decide.', correct: false, points: 20 },
+        { text: 'Stay silent. You were overruled — it\'s not your responsibility.', correct: false, points: -20 }
+      ]
+    },
+    feedback: {
+      correct: {
+        gov:  'COSO ERM mandates that boards and senior leadership activate risk response plans immediately. Suspension is the proportionate and defensible action. Delay increases reputational and legal exposure exponentially.',
+        corp: 'Transparency under crisis is the gold standard in AI governance. ISO 31000 demands honest risk communication. Companies that conceal data in AI incidents face far greater long-term liability.',
+        pub:  'Regulators exist precisely for this. Individual voices aggregated through proper channels create systemic change. Social media alone rarely produces policy outcomes.',
+        eng:  'Under OECD AI Principles, engineers have a professional obligation to report known risks. Whistleblower protections exist. Concealment of a known pre-incident warning is a serious ethical and legal breach.'
+      },
+      wrong: {
+        gov:  'Waiting for the company to investigate itself is a governance failure. Under Tricker\'s model, oversight bodies must act independently. "Monitoring closely" communicates inaction and undermines trust.',
+        corp: 'Legal minimalism in AI incidents consistently backfires. The public, regulators, and courts view delayed transparency as evidence of concealment. Proactive disclosure is both ethical and strategically sound.',
+        pub:  'Passive responses to systemic safety failures perpetuate them. The OECD emphasises that public trust in AI requires active civic engagement, not private opt-outs.',
+        eng:  'Silence when you hold material safety information is not neutral — it is complicity. COSO ERM and professional engineering ethics require documented risk escalation.'
+      }
+    }
+  },
+  {
+    tag: '🔍 Algorithmic Bias',
+    tagColor: '#7b61ff',
+    headline: 'The System Learns the Wrong Lesson',
+    body: 'Analysis of 18 months of fleet data reveals that vehicles in lower-income postcodes brake 23% less aggressively than in wealthier areas — because training data skewed toward affluent suburbs. The AI learned that pedestrian activity in certain areas "matters less." Nobody programmed this. Nobody noticed.',
+    framework: 'Framework lens: <strong>OECD AI Principles</strong> — Fairness, non-discrimination, and human oversight in AI systems.',
+    roleContext: {
+      gov:  'A journalist has the data and is publishing tomorrow.',
+      corp: 'Your own audit team found this. It\'s in an internal report marked confidential.',
+      pub:  'You live in one of the postcodes with lower brake response scores.',
+      eng:  'Your training dataset composition choices from 18 months ago are central to this.'
+    },
+    choices: {
+      gov: [
+        { text: 'Mandate independent algorithmic audits for all autonomous vehicle operators and publish findings.', correct: true, points: 100 },
+        { text: 'Wait for the journalist to publish — then respond to the story.', correct: false, points: -20 },
+        { text: 'Commission a government review that will report in 18 months.', correct: false, points: 20 },
+        { text: 'Require the company to fix it internally with no external oversight.', correct: false, points: 30 }
+      ],
+      corp: [
+        { text: 'Immediately disclose the finding, suspend affected routes, and commission an external algorithmic audit.', correct: true, points: 100 },
+        { text: 'Fix the algorithm quietly. No disclosure needed if it\'s fixed.', correct: false, points: -30 },
+        { text: 'Dispute the methodology of your own audit team\'s findings.', correct: false, points: -50 },
+        { text: 'Disclose only if the journalist publishes — reactive transparency.', correct: false, points: 10 }
+      ],
+      pub: [
+        { text: 'File a formal complaint with the Information Commissioner\'s Office and join a community coalition demanding an audit.', correct: true, points: 100 },
+        { text: 'Accept that AI systems are imperfect and move on.', correct: false, points: -20 },
+        { text: 'Avoid using the service and warn friends — informal network only.', correct: false, points: 20 },
+        { text: 'Trust the company will fix it when they notice.', correct: false, points: -30 }
+      ],
+      eng: [
+        { text: 'Document the data composition flaw formally, propose a full retraining plan, and advocate for external audit.', correct: true, points: 100 },
+        { text: 'Patch the current model parameters without a full retraining or disclosure.', correct: false, points: 20 },
+        { text: 'Argue the bias is within "acceptable" technical variance.', correct: false, points: -30 },
+        { text: 'Blame the data labelling team — it wasn\'t your decision.', correct: false, points: -20 }
+      ]
+    },
+    feedback: {
+      correct: {
+        gov:  'Mandatory algorithmic audits are the regulatory response recommended by OECD AI governance frameworks. Pre-emptive action before media pressure demonstrates proactive governance.',
+        corp: 'Proactive disclosure of algorithmic bias is expected under OECD AI Principles and emerging EU AI Act requirements. Companies that self-report are treated more favourably by regulators.',
+        pub:  'The ICO has powers to compel audits and impose fines. Community coalitions amplify individual complaints into systemic investigations.',
+        eng:  'Bias in training data requires full retraining, not parameter patching. External audit ensures credibility. Documentation protects you professionally.'
+      },
+      wrong: {
+        gov:  'Reactive governance — waiting for media to force action — is a failure of the oversight function described in both COSO ERM and Tricker\'s model.',
+        corp: 'Quiet fixes without disclosure are a significant governance risk. If discovered later, the concealment is often judged more harshly than the original bias. ISO 31000 requires transparent communication of known risks.',
+        pub:  'Accepting discriminatory AI as inevitable normalises it. OECD AI Principles state that affected communities have the right to contest AI decisions.',
+        eng:  'Technical minimalism without disclosure fails the communities affected and the professional obligation to report known risks.'
+      }
+    }
+  },
+  {
+    tag: '🛡️ Data & Consent',
+    tagColor: '#00c9a7',
+    headline: 'Your Passengers Are the Product',
+    body: 'An investigation reveals the company has been selling passenger location data, biometric behaviour patterns, and inferred daily routines to insurance companies, property developers, and political campaign data brokers. The data was technically "consented to" via a 47-page terms of service updated 14 months ago.',
+    framework: 'Framework lens: <strong>ISO 31000 + OECD AI Principles</strong> — Data governance, privacy as organisational risk, and informed consent.',
+    roleContext: {
+      gov:  'You approved the company\'s operating licence. The consent clause was in their T&Cs.',
+      corp: 'This data revenue stream contributes 12% of quarterly profit.',
+      pub:  'You clicked "I Agree" 14 months ago without reading it. Your insurer just raised your premium.',
+      eng:  'You built the data pipeline. You thought it was for safety analytics only.'
+    },
+    choices: {
+      gov: [
+        { text: 'Introduce mandatory plain-English consent requirements and ban data sales to non-transport third parties.', correct: true, points: 100 },
+        { text: 'The T&Cs were technically legal. No regulatory action required.', correct: false, points: -30 },
+        { text: 'Require the company to notify users but allow current practices to continue.', correct: false, points: 30 },
+        { text: 'Refer to the ICO and take no independent action.', correct: false, points: 40 }
+      ],
+      corp: [
+        { text: 'Immediately halt third-party data sales, issue granular consent re-request to all users, and delete improperly used data.', correct: true, points: 100 },
+        { text: 'The consent was legal. Maintain the revenue stream.', correct: false, points: -40 },
+        { text: 'Offer users an opt-out buried in settings.', correct: false, points: 10 },
+        { text: 'Rewrite the T&Cs to be clearer going forward. Keep historic sales.', correct: false, points: 20 }
+      ],
+      pub: [
+        { text: 'Exercise your GDPR right to erasure and data access; file complaint with ICO; consider joining a class action.', correct: true, points: 100 },
+        { text: 'You agreed to the T&Cs — there\'s nothing you can do.', correct: false, points: -30 },
+        { text: 'Delete the app but take no formal action.', correct: false, points: 20 },
+        { text: 'Contact the company directly and expect them to resolve it.', correct: false, points: 10 }
+      ],
+      eng: [
+        { text: 'Formally document that the pipeline\'s original specification was safety-only; escalate the misuse to the DPO and board.', correct: true, points: 100 },
+        { text: 'It\'s not your pipeline anymore — another team manages it.', correct: false, points: -20 },
+        { text: 'Raise it informally with your manager as a concern.', correct: false, points: 30 },
+        { text: 'The data is anonymised — it\'s probably fine.', correct: false, points: -30 }
+      ]
+    },
+    feedback: {
+      correct: {
+        gov:  'Plain-English consent and purpose-limitation rules are the regulatory backbone of ethical AI data use. OECD AI Principles demand that data governance be transparent and meaningful — not technical obfuscation.',
+        corp: 'GDPR requires lawful, fair, and transparent processing. Consent buried in 47 pages fails the "freely given, specific, informed" test. Halting sales and re-consenting is the only legally defensible path.',
+        pub:  'GDPR gives you the right to access your data, request erasure, and object to processing. You agreed to terms, but those terms may not be enforceable if they fail informed consent standards.',
+        eng:  'If the pipeline was scoped for safety analytics and repurposed for commercial sale, that is a data governance breach — not your fault, but your responsibility to escalate.'
+      },
+      wrong: {
+        gov:  'Technical legality is not the same as ethical governance. Tricker\'s model expects regulators to apply the spirit of oversight, not just the letter.',
+        corp: 'Legal consent that fails the spirit of transparency is increasingly unenforceable. EU AI Act, UK GDPR, and evolving guidance are converging on the position that covert data commercialisation is a material risk.',
+        pub:  'You have more rights than you think. GDPR rights to erasure, access, and objection are powerful. Companies that rely on passive acceptance of buried T&Cs are increasingly losing in court.',
+        eng:  'Data pipeline scope drift is a known risk in AI systems. ISO 31000 requires that risk registers be updated when system uses change. "Not my problem" is not a defensible position.'
+      }
+    }
+  },
+  {
+    tag: '🤖 Human Oversight',
+    tagColor: '#f5a623',
+    headline: 'The Board Trusts the Dashboard',
+    body: 'The board has been approving autonomous system expansions based on a single AI-generated risk dashboard showing "GREEN" across all metrics. But engineers know the dashboard aggregates thousands of sub-signals into a composite score — and a critical sensor degradation issue is being averaged away. The board is about to greenlight operations in 3 new cities.',
+    framework: 'Framework lens: <strong>Tricker\'s Governance Model + COSO ERM</strong> — Board accountability, information asymmetry, and meaningful human oversight.',
+    roleContext: {
+      gov:  'You\'re about to approve operating licences in two of the three new cities.',
+      corp: 'You\'re in the board meeting. The dashboard says GREEN. Expansion means £200m revenue.',
+      pub:  'One of the three new cities is yours. You\'ve been following the news.',
+      eng:  'You built the dashboard. You know exactly why the composite score masks the sensor issue.'
+    },
+    choices: {
+      gov: [
+        { text: 'Require companies to submit disaggregated risk data — not composite scores — as part of licence applications.', correct: true, points: 100 },
+        { text: 'If the company\'s dashboard says GREEN, that\'s their responsibility.', correct: false, points: -30 },
+        { text: 'Ask the company for a second opinion from a different internal team.', correct: false, points: 20 },
+        { text: 'Approve licences but add a general safety review clause.', correct: false, points: 30 }
+      ],
+      corp: [
+        { text: 'Pause the expansion vote, demand granular sub-signal data from engineering, and commission an independent technical review.', correct: true, points: 100 },
+        { text: 'The dashboard is GREEN. The engineers signed off. Proceed.', correct: false, points: -40 },
+        { text: 'Ask the CTO to confirm verbally that the system is safe.', correct: false, points: 20 },
+        { text: 'Approve two of the three cities and review the third in 6 months.', correct: false, points: 10 }
+      ],
+      pub: [
+        { text: 'Contact your city council, local MP, and transport regulator demanding public disclosure of risk assessments before expansion approval.', correct: true, points: 100 },
+        { text: 'If the regulator approves it, it must be safe.', correct: false, points: -20 },
+        { text: 'Start a community petition against expansion.', correct: false, points: 40 },
+        { text: 'Wait and see. The technology is probably improving.', correct: false, points: -10 }
+      ],
+      eng: [
+        { text: 'Formally submit a technical disclosure memo to the board and CTO before the vote, documenting the aggregation flaw.', correct: true, points: 100 },
+        { text: 'You flagged it in a Slack message 3 weeks ago. That\'s enough.', correct: false, points: -20 },
+        { text: 'Update the dashboard to show the issue more visibly — but don\'t stop the vote.', correct: false, points: 30 },
+        { text: 'Wait for someone else to raise it. You don\'t want to be the obstacle.', correct: false, points: -30 }
+      ]
+    },
+    feedback: {
+      correct: {
+        gov:  'Tricker\'s governance model warns explicitly against information asymmetry between operators and regulators. Composite dashboards obscure the granular data regulators need to make meaningful decisions.',
+        corp: 'COSO ERM requires that boards receive material risk information in a form they can meaningfully evaluate. Proceeding on an unvalidated composite score is a breach of board duty.',
+        pub:  'Regulatory expansion decisions should be subject to public consultation and transparent risk disclosure. Community pressure on local representatives is one of the most effective levers for forcing pre-approval scrutiny.',
+        eng:  'A formal memo creates a paper trail and forces the issue into the decision record. Slack messages are routinely disregarded. Documented escalation is the professional standard.'
+      },
+      wrong: {
+        gov:  'Regulators who accept operator-produced dashboards at face value have abrogated their oversight function. This contradicts the independence requirement in Tricker\'s governance model.',
+        corp: 'Tricker identifies "rubber-stamping" management decisions as a core board dysfunction. Boards that approve expansions without independent technical validation face significant personal liability post-incident.',
+        pub:  'Regulatory approval does not guarantee safety. Regulators can only assess what they are given. Public scrutiny before expansion is a meaningful check on inadequate regulatory processes.',
+        eng:  'Informal flagging without documented escalation provides no protection. Under COSO ERM, risk identification must result in formal reporting. "I mentioned it" is not the same as "I formally disclosed it."'
+      }
+    }
+  },
+  {
+    tag: '⚖️ Accountability',
+    tagColor: '#00c9a7',
+    headline: 'Who Is Responsible When Nobody Is?',
+    body: 'A parliamentary inquiry asks: who is legally and morally responsible when an AI system causes harm? The company says the AI decided. The AI supplier says the operator configured it wrong. The operator says the regulator approved it. The regulator says the law hasn\'t caught up. The victim\'s family is still waiting for an answer.',
+    framework: 'Framework lens: <strong>All Frameworks</strong> — COSO ERM, ISO 31000, OECD AI Principles, Tricker\'s model. The accountability gap in AI deployment.',
+    roleContext: {
+      gov:  'You are giving evidence to the parliamentary inquiry.',
+      corp: 'Your lawyers have advised you to say as little as possible.',
+      pub:  'You are watching the inquiry live. You could be next.',
+      eng:  'You have been asked to submit written evidence. Your employer is asking you not to.'
+    },
+    choices: {
+      gov: [
+        { text: 'Advocate for strict liability legislation: whoever deploys an autonomous system bears primary legal responsibility for its actions.', correct: true, points: 100 },
+        { text: 'Recommend a cross-industry working group to report recommendations in 24 months.', correct: false, points: -10 },
+        { text: 'Argue that existing product liability law is sufficient.', correct: false, points: 20 },
+        { text: 'Blame the rapid pace of AI development — nobody could have predicted this.', correct: false, points: -30 }
+      ],
+      corp: [
+        { text: 'Accept full corporate responsibility, cooperate with the inquiry without legal obstruction, and commit to a binding governance framework.', correct: true, points: 100 },
+        { text: 'Cooperate minimally — answer only what is legally compelled.', correct: false, points: -20 },
+        { text: 'Redirect responsibility to the AI supplier and regulator in your evidence.', correct: false, points: -30 },
+        { text: 'Announce a voluntary industry code of conduct to pre-empt legislation.', correct: false, points: 30 }
+      ],
+      pub: [
+        { text: 'Submit public testimony. Campaign for the right to know which AI systems affect you and for legally enforceable redress.', correct: true, points: 100 },
+        { text: 'The legal system is too complex for individuals. Leave it to experts.', correct: false, points: -20 },
+        { text: 'Sign a petition and share on social media.', correct: false, points: 20 },
+        { text: 'Trust the parliamentary process to reach the right conclusion without your input.', correct: false, points: 10 }
+      ],
+      eng: [
+        { text: 'Submit honest, complete written evidence to the inquiry regardless of employer pressure — public interest overrides employer instruction here.', correct: true, points: 100 },
+        { text: 'Follow your employer\'s advice. Your job comes first.', correct: false, points: -40 },
+        { text: 'Submit partial evidence — include technical facts but avoid anything that implicates your employer.', correct: false, points: 10 },
+        { text: 'Recuse yourself from the inquiry citing conflict of interest.', correct: false, points: 20 }
+      ]
+    },
+    feedback: {
+      correct: {
+        gov:  'OECD AI Principles state that accountability must be established clearly before deployment, not negotiated after harm. Strict liability for deployers — who profit from the system — is the governance approach most consistent with public interest.',
+        corp: 'Tricker\'s model holds that companies must not use complexity as a shield. Full cooperation and binding commitments are the only responses consistent with responsible governance.',
+        pub:  'Public testimony and campaigning for legally enforceable rights are the most powerful tools citizens have. OECD AI Principles include the right to challenge AI decisions that affect your life.',
+        eng:  'Engineers who hold material technical knowledge have a professional and civic obligation to provide honest evidence, even under employer pressure. Whistleblower protections apply.'
+      },
+      wrong: {
+        gov:  'Working groups and long-form reviews are a pattern of regulatory delay that OECD explicitly critiques. AI capabilities are evolving faster than governance — more delay compounds the accountability gap.',
+        corp: 'Legal minimalism in parliamentary proceedings damages trust and triggers stricter legislation. ISO 31000 and COSO ERM treat transparency with regulatory bodies as a core risk management principle.',
+        pub:  'Democratic accountability processes are only as strong as public participation. The history of effective AI regulation shows citizen testimony and organised advocacy are essential.',
+        eng:  'Employer instruction to withhold evidence from a parliamentary inquiry may itself be unlawful. Complying with suppression requests exposes you to greater personal risk than testifying honestly.'
+      }
+    }
+  }
+];
+
+let currentRole = null, currentScenario = 0, score = 0, answered = false, correctCount = 0;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function selectRole(role) {
+  currentRole = role; currentScenario = 0; score = 0; answered = false; correctCount = 0;
+  initGame(); showScreen('game');
+}
+
+function initGame() {
+  const r = roles[currentRole];
+  document.getElementById('topbar-role-name').textContent = r.icon + ' ' + r.name;
+  document.getElementById('role-dot').style.background = r.color;
+  document.getElementById('score-counter').textContent = score;
+  const pd = document.getElementById('progress-dots');
+  pd.innerHTML = '';
+  for (let i = 0; i < scenarios.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'pdot' + (i === 0 ? ' active' : '');
+    d.id = 'pdot-' + i;
+    pd.appendChild(d);
+  }
+  loadScenario();
+}
+
+function loadScenario() {
+  answered = false;
+  const s = scenarios[currentScenario];
+  document.getElementById('scenario-num').textContent = 'Scenario ' + (currentScenario+1) + ' of ' + scenarios.length;
+  const tag = document.getElementById('scenario-tag');
+  tag.textContent = s.tag;
+  tag.style.background = s.tagColor + '22';
+  tag.style.color = s.tagColor;
+  document.getElementById('scenario-headline').textContent = s.headline;
+  document.getElementById('scenario-body').innerHTML = '<strong style="color:var(--text)">' + s.roleContext[currentRole] + '</strong><br><br>' + s.body;
+  document.getElementById('scenario-framework').innerHTML = s.framework;
+  const cg = document.getElementById('choices-grid');
+  cg.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  s.choices[currentRole].forEach(function(c, i) {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = '<span class="choice-letter">' + letters[i] + '</span><span>' + c.text + '</span>';
+    btn.onclick = (function(idx, b, choices){ return function(){ selectChoice(idx, b, choices); }; })(i, btn, s.choices[currentRole]);
+    cg.appendChild(btn);
+  });
+  document.getElementById('feedback-panel').classList.remove('show');
+  for (let i = 0; i < scenarios.length; i++) {
+    const d = document.getElementById('pdot-' + i);
+    if (!d) continue;
+    d.className = 'pdot';
+    if (i < currentScenario) d.classList.add('done');
+    if (i === currentScenario) d.classList.add('active');
+  }
+  window.scrollTo(0,0);
+}
+
+function selectChoice(index, btn, choices) {
+  if (answered) return;
+  answered = true;
+  const chosen = choices[index];
+  const correctIndex = choices.findIndex(function(c){ return c.correct; });
+  const isCorrect = chosen.correct;
+  const pts = chosen.points;
+  score += Math.max(0, pts);
+  if (isCorrect) correctCount++;
+  document.getElementById('score-counter').textContent = score;
+  document.querySelectorAll('.choice-btn').forEach(function(b, i) {
+    b.disabled = true;
+    if (i === index && isCorrect) b.classList.add('correct');
+    else if (i === index && !isCorrect) b.classList.add('wrong');
+    else if (i === correctIndex && !isCorrect) b.classList.add('missed');
+  });
+  const s = scenarios[currentScenario];
+  const feedbackData = isCorrect ? s.feedback.correct[currentRole] : s.feedback.wrong[currentRole];
+  const pp = document.getElementById('feedback-points');
+  pp.textContent = pts >= 100 ? '+' + pts + ' OPTIMAL DECISION' : pts > 0 ? '+' + pts + ' PARTIAL CREDIT' : pts + ' RISK PENALTY';
+  pp.className = 'points-pill ' + (pts >= 100 ? 'pos' : pts > 0 ? 'neu' : 'neg');
+  const fv = document.getElementById('feedback-verdict');
+  fv.textContent = isCorrect ? '✓ Strong Governance Response' : '✗ Governance Gap Identified';
+  fv.className = 'feedback-verdict ' + (isCorrect ? 'good' : 'bad');
+  document.getElementById('feedback-text').textContent = feedbackData;
+  document.getElementById('feedback-framework-ref').innerHTML = '<strong>FRAMEWORK REFERENCE:</strong> ' + s.framework.replace('Framework lens: ', '');
+  document.getElementById('btn-next').textContent = currentScenario >= scenarios.length - 1 ? 'SEE YOUR RESULTS →' : 'NEXT SCENARIO →';
+  const fp = document.getElementById('feedback-panel');
+  fp.classList.add('show');
+  fp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function nextScenario() {
+  currentScenario++;
+  if (currentScenario >= scenarios.length) { showResults(); }
+  else { loadScenario(); }
+}
+
+function showResults() {
+  const r = roles[currentRole];
+  const pct = Math.round((score / 500) * 100);
+  document.getElementById('results-role').textContent = r.icon + ' ' + r.name + ' · ' + r.org;
+  const sb = document.getElementById('results-score');
+  sb.textContent = score; sb.style.color = r.color;
+  let vt, vc;
+  if (pct >= 80) { vt = '🏆 Governance Leader — Exceptional Judgement'; vc = '#00e87a'; }
+  else if (pct >= 60) { vt = '📊 Risk-Aware — Solid Strategic Thinking'; vc = '#ffc44d'; }
+  else if (pct >= 40) { vt = '⚠️ Governance Gaps — Room to Strengthen'; vc = '#f5a623'; }
+  else { vt = '🚨 Critical Gaps — Review Frameworks'; vc = '#ff4d4d'; }
+  const vb = document.getElementById('verdict-banner');
+  vb.textContent = vt; vb.style.color = vc; vb.style.borderColor = vc;
+  document.getElementById('insight-grid').innerHTML =
+    '<div class="insight-card"><div class="insight-label">Correct Decisions</div><div class="insight-value" style="color:' + r.color + '">' + correctCount + ' / ' + scenarios.length + '</div></div>' +
+    '<div class="insight-card"><div class="insight-label">Total Score</div><div class="insight-value" style="color:' + r.color + '">' + score + ' pts</div></div>' +
+    '<div class="insight-card"><div class="insight-label">Percentile</div><div class="insight-value" style="color:' + r.color + '">' + pct + '%</div></div>' +
+    '<div class="insight-card"><div class="insight-label">Role Played</div><div class="insight-value" style="color:' + r.color + '">' + r.icon + ' ' + currentRole.toUpperCase() + '</div></div>';
+  document.getElementById('share-text').textContent =
+    'AUTONOMOUS AI Risk Simulation | Role: ' + r.name + ' | Score: ' + score + '/500 (' + pct + '%) | ' + correctCount + '/5 correct | ' + vt + ' | ULaw AI Innovation & Transformation · Unit 4';
+  showScreen('results');
+}
+
+function restartGame() { if (currentRole) selectRole(currentRole); else showScreen('role-select'); }
+</script>
+</body>
+</html>
