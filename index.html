@@ -374,6 +374,12 @@ const roles = {
   eng:  { name: 'AI Systems Engineer', org: 'Technical Lead', color: '#7b61ff', icon: '⚙️' }
 };
 
+// NOTE ON DIFFICULTY DESIGN:
+// Every wrong answer is plausible — many sound "responsible" or "pragmatic."
+// Traps include: acting decisively but prematurely, over-delegating to legal/technical teams,
+// taking symbolic action instead of systemic action, and confusing "I reported it" with "I escalated properly."
+// The correct answer is never the most dramatic or the most cautious — it's the one grounded in governance frameworks.
+
 const scenarios = [
   {
     tag: '🚨 Incident Response',
@@ -389,42 +395,42 @@ const scenarios = [
     },
     choices: {
       gov: [
-        { text: 'Immediately suspend all autonomous vehicle operations in London pending a full safety review.', correct: true, points: 100 },
-        { text: 'Issue a "monitoring closely" statement and wait for the company\'s own investigation.', correct: false, points: -20 },
-        { text: 'Hold a press conference blaming the company and calling for criminal prosecution immediately.', correct: false, points: 10 },
-        { text: 'Quietly request data from the company before taking any public position.', correct: false, points: 40 }
+        { text: 'Hold a press conference blaming the company and calling for a criminal investigation — decisive public leadership in a crisis.', correct: false, points: 10 },
+        { text: 'Quietly request the company\'s full telemetry data before taking any public position — you need facts before acting.', correct: false, points: 40 },
+        { text: 'Immediately suspend all autonomous vehicle operations in London pending an independent safety review.', correct: true, points: 100 },
+        { text: 'Issue a statement that you are "monitoring the situation closely" while the company conducts its own internal investigation.', correct: false, points: -20 }
       ],
       corp: [
-        { text: 'Immediately publish full telemetry data, suspend the route, and announce an independent inquiry.', correct: true, points: 100 },
-        { text: 'Release a brief condolence statement. Lawyers handle the rest.', correct: false, points: -10 },
-        { text: 'Blame the sensor hardware supplier and redirect media attention.', correct: false, points: -30 },
-        { text: 'Offer a financial settlement to the family quietly before media escalation.', correct: false, points: 20 }
+        { text: 'Release a brief condolence statement and let your legal team manage all further communications.', correct: false, points: -10 },
+        { text: 'Offer a confidential financial settlement to the family before the story escalates further.', correct: false, points: 20 },
+        { text: 'Redirect media attention by announcing the sensor hardware was supplied by a third party.', correct: false, points: -30 },
+        { text: 'Immediately publish full telemetry data, suspend the route, and announce an independent external inquiry.', correct: true, points: 100 }
       ],
       pub: [
-        { text: 'Contact your local councillor and the transport regulator to demand immediate suspension of the service.', correct: true, points: 100 },
-        { text: 'Post on social media and hope it goes viral.', correct: false, points: 10 },
-        { text: 'Stop using the service personally but take no further action.', correct: false, points: 30 },
-        { text: 'Wait for the official inquiry — the system will investigate itself.', correct: false, points: -10 }
+        { text: 'Stop using the service and warn your immediate network — you can at least protect the people you know.', correct: false, points: 30 },
+        { text: 'Post on social media with the hashtag #BanSelfDrivingCars — public pressure is the fastest lever.', correct: false, points: 10 },
+        { text: 'Contact your local councillor and the Transport Commissioner\'s office to demand immediate suspension of the service.', correct: true, points: 100 },
+        { text: 'Wait for the official inquiry to conclude — it\'s important not to pre-judge a complex technical investigation.', correct: false, points: -10 }
       ],
       eng: [
-        { text: 'Submit your original risk memo to the regulator and make it public — whistleblower protections apply.', correct: true, points: 100 },
-        { text: 'Delete any records of the flagged report to protect yourself.', correct: false, points: -50 },
-        { text: 'Tell your manager privately and let them decide.', correct: false, points: 20 },
-        { text: 'Stay silent. You were overruled — it\'s not your responsibility.', correct: false, points: -20 }
+        { text: 'Tell your line manager privately and let them escalate — it\'s their job to handle this, not yours.', correct: false, points: 20 },
+        { text: 'Stay silent for now — you were overruled by senior leadership, so the moral responsibility rests with them.', correct: false, points: -20 },
+        { text: 'Delete any personal copies of the original risk memo to protect yourself from being implicated.', correct: false, points: -50 },
+        { text: 'Submit your original pre-incident risk memo to the regulator and make it public — whistleblower protections apply.', correct: true, points: 100 }
       ]
     },
     feedback: {
       correct: {
-        gov:  'COSO ERM mandates that boards and senior leadership activate risk response plans immediately. Suspension is the proportionate and defensible action. Delay increases reputational and legal exposure exponentially.',
-        corp: 'Transparency under crisis is the gold standard in AI governance. ISO 31000 demands honest risk communication. Companies that conceal data in AI incidents face far greater long-term liability.',
-        pub:  'Regulators exist precisely for this. Individual voices aggregated through proper channels create systemic change. Social media alone rarely produces policy outcomes.',
-        eng:  'Under OECD AI Principles, engineers have a professional obligation to report known risks. Whistleblower protections exist. Concealment of a known pre-incident warning is a serious ethical and legal breach.'
+        gov:  'COSO ERM mandates that boards and senior leadership activate risk response plans immediately. Suspension is the proportionate and legally defensible action. Waiting for company data or holding blame-led press conferences are both governance failures — one is too passive, the other too reactive without evidence.',
+        corp: 'Transparency under crisis is the gold standard in AI governance. ISO 31000 demands honest risk communication. Companies that conceal data in AI incidents face far greater long-term liability than those who self-disclose. A financial settlement or blame-redirect does not satisfy the governance obligation.',
+        pub:  'Regulators exist precisely for this. Individual voices aggregated through proper channels create systemic change. Social media pressure and personal opt-outs are symbolic — they don\'t trigger the regulatory action that protects others.',
+        eng:  'Under OECD AI Principles, engineers have a professional obligation to report known risks. Whistleblower protections exist. Telling your manager and waiting is insufficient — a pre-incident written warning that was overruled requires direct regulatory disclosure.'
       },
       wrong: {
-        gov:  'Waiting for the company to investigate itself is a governance failure. Under Tricker\'s model, oversight bodies must act independently. "Monitoring closely" communicates inaction and undermines trust.',
-        corp: 'Legal minimalism in AI incidents consistently backfires. The public, regulators, and courts view delayed transparency as evidence of concealment. Proactive disclosure is both ethical and strategically sound.',
-        pub:  'Passive responses to systemic safety failures perpetuate them. The OECD emphasises that public trust in AI requires active civic engagement, not private opt-outs.',
-        eng:  'Silence when you hold material safety information is not neutral — it is complicity. COSO ERM and professional engineering ethics require documented risk escalation.'
+        gov:  'Consider what governance frameworks say about timing and evidence. Blaming publicly before investigation is premature. Waiting for the company\'s own review is passive. "Monitoring closely" signals inaction. COSO ERM requires the regulator to act with proportionate, independent authority — not react to media or defer to the operator.',
+        corp: 'Legal minimalism and settlement offers in AI incidents consistently backfire. Courts and regulators view delayed transparency as evidence of concealment. A third-party blame redirect is both strategically and ethically weak. Proactive disclosure is both the ethical and strategically sound choice under ISO 31000.',
+        pub:  'Passive responses to systemic safety failures perpetuate them. Social media campaigns create noise but rarely produce policy change. The OECD emphasises that public trust in AI requires active civic engagement through formal channels — not private opt-outs or informal warnings.',
+        eng:  'Silence when you hold material pre-incident safety information is not neutral — it is complicity. Deferring to your manager, or worse, destroying records, compounds the governance failure significantly. COSO ERM and professional engineering ethics require documented escalation to regulatory bodies in safety-critical incidents.'
       }
     }
   },
@@ -442,42 +448,42 @@ const scenarios = [
     },
     choices: {
       gov: [
-        { text: 'Mandate independent algorithmic audits for all autonomous vehicle operators and publish findings.', correct: true, points: 100 },
-        { text: 'Wait for the journalist to publish — then respond to the story.', correct: false, points: -20 },
-        { text: 'Commission a government review that will report in 18 months.', correct: false, points: 20 },
-        { text: 'Require the company to fix it internally with no external oversight.', correct: false, points: 30 }
+        { text: 'Commission a government-led review with a mandate to report recommendations within 18 months — any action before that risks being uninformed.', correct: false, points: 20 },
+        { text: 'Wait for the journalist\'s article to publish first — then your response will be seen as reactive rather than politically motivated.', correct: false, points: -20 },
+        { text: 'Require the company to fix it internally and report back to you — they have the technical expertise to resolve their own systems.', correct: false, points: 30 },
+        { text: 'Mandate independent algorithmic audits for all autonomous vehicle operators, with published findings.', correct: true, points: 100 }
       ],
       corp: [
-        { text: 'Immediately disclose the finding, suspend affected routes, and commission an external algorithmic audit.', correct: true, points: 100 },
-        { text: 'Fix the algorithm quietly. No disclosure needed if it\'s fixed.', correct: false, points: -30 },
-        { text: 'Dispute the methodology of your own audit team\'s findings.', correct: false, points: -50 },
-        { text: 'Disclose only if the journalist publishes — reactive transparency.', correct: false, points: 10 }
+        { text: 'Fix the algorithm parameters quietly — disclosure isn\'t required if the problem has already been corrected.', correct: false, points: -30 },
+        { text: 'Dispute the audit team\'s methodology — the 23% figure may reflect differences in traffic patterns, not bias.', correct: false, points: -50 },
+        { text: 'Only disclose if the journalist publishes — at that point you can frame it as a company already taking action.', correct: false, points: 10 },
+        { text: 'Immediately disclose the finding, suspend affected routes, and commission an external algorithmic audit.', correct: true, points: 100 }
       ],
       pub: [
-        { text: 'File a formal complaint with the Information Commissioner\'s Office and join a community coalition demanding an audit.', correct: true, points: 100 },
-        { text: 'Accept that AI systems are imperfect and move on.', correct: false, points: -20 },
-        { text: 'Avoid using the service and warn friends — informal network only.', correct: false, points: 20 },
-        { text: 'Trust the company will fix it when they notice.', correct: false, points: -30 }
+        { text: 'Accept that no AI system is perfect — the important thing is that the company will eventually fix it.', correct: false, points: -20 },
+        { text: 'Stop using the service and warn friends and neighbours through your local community group.', correct: false, points: 20 },
+        { text: 'File a formal complaint with the Information Commissioner\'s Office and join a community coalition demanding a public audit.', correct: true, points: 100 },
+        { text: 'Trust the regulator to act once they become aware — that\'s what regulators are there for.', correct: false, points: -30 }
       ],
       eng: [
-        { text: 'Document the data composition flaw formally, propose a full retraining plan, and advocate for external audit.', correct: true, points: 100 },
-        { text: 'Patch the current model parameters without a full retraining or disclosure.', correct: false, points: 20 },
-        { text: 'Argue the bias is within "acceptable" technical variance.', correct: false, points: -30 },
-        { text: 'Blame the data labelling team — it wasn\'t your decision.', correct: false, points: -20 }
+        { text: 'Patch the model\'s output parameters to reduce the gap — a targeted fix is faster and less disruptive than full retraining.', correct: false, points: 20 },
+        { text: 'Formally document the data composition flaw, propose a full retraining plan, and advocate for an external audit.', correct: true, points: 100 },
+        { text: 'Raise it with your manager informally — they can decide if it warrants escalation.', correct: false, points: -20 },
+        { text: 'Classify the variation as within acceptable technical variance — all models have regional performance differences.', correct: false, points: -30 }
       ]
     },
     feedback: {
       correct: {
-        gov:  'Mandatory algorithmic audits are the regulatory response recommended by OECD AI governance frameworks. Pre-emptive action before media pressure demonstrates proactive governance.',
-        corp: 'Proactive disclosure of algorithmic bias is expected under OECD AI Principles and emerging EU AI Act requirements. Companies that self-report are treated more favourably by regulators.',
-        pub:  'The ICO has powers to compel audits and impose fines. Community coalitions amplify individual complaints into systemic investigations.',
-        eng:  'Bias in training data requires full retraining, not parameter patching. External audit ensures credibility. Documentation protects you professionally.'
+        gov:  'Mandatory algorithmic audits with public results are the regulatory response recommended by OECD AI governance frameworks. Pre-emptive action before media publication demonstrates proactive governance — waiting for the story to break first is a reactive and reputationally costly approach.',
+        corp: 'Proactive disclosure of algorithmic bias is expected under OECD AI Principles and emerging EU AI Act requirements. A quiet parameter patch without disclosure is discoverable — and companies that self-report are consistently treated more favourably by regulators than those who conceal.',
+        pub:  'The ICO has statutory powers to compel audits and impose significant fines. Community coalitions amplify individual complaints into systemic investigations. Trusting companies or regulators to act without pressure has a poor historical record in AI governance.',
+        eng:  'Bias in training data requires full retraining, not parameter patching. A patch can mask the symptom while the underlying flaw remains. External audit ensures credibility and protects you professionally — informal escalation without documentation provides no protection.'
       },
       wrong: {
-        gov:  'Reactive governance — waiting for media to force action — is a failure of the oversight function described in both COSO ERM and Tricker\'s model.',
-        corp: 'Quiet fixes without disclosure are a significant governance risk. If discovered later, the concealment is often judged more harshly than the original bias. ISO 31000 requires transparent communication of known risks.',
-        pub:  'Accepting discriminatory AI as inevitable normalises it. OECD AI Principles state that affected communities have the right to contest AI decisions.',
-        eng:  'Technical minimalism without disclosure fails the communities affected and the professional obligation to report known risks.'
+        gov:  'An 18-month review is a textbook example of regulatory delay that OECD explicitly critiques. Reactive governance — waiting for media to force action — is a failure of the independent oversight function described in Tricker\'s model. Internal fixes without external oversight provide no accountability.',
+        corp: 'Quiet fixes without disclosure are the highest-risk response. If discovered later — and they usually are — the concealment is judged more harshly than the original bias. Disputing your own audit team\'s methodology is particularly damaging: it signals institutional bad faith to regulators.',
+        pub:  'Passive acceptance normalises discriminatory AI and removes the social pressure that creates regulatory action. Trusting regulators to act on information they don\'t yet have is circular logic. OECD AI Principles state that affected communities have the right — and responsibility — to contest AI decisions.',
+        eng:  'Parameter patching without disclosure is technically inadequate and ethically insufficient. Informal escalation provides no paper trail. Classifying a 23% safety disparity by postcode as "acceptable variance" is not a defensible professional position under any recognised engineering or governance standard.'
       }
     }
   },
@@ -495,42 +501,42 @@ const scenarios = [
     },
     choices: {
       gov: [
-        { text: 'Introduce mandatory plain-English consent requirements and ban data sales to non-transport third parties.', correct: true, points: 100 },
-        { text: 'The T&Cs were technically legal. No regulatory action required.', correct: false, points: -30 },
-        { text: 'Require the company to notify users but allow current practices to continue.', correct: false, points: 30 },
-        { text: 'Refer to the ICO and take no independent action.', correct: false, points: 40 }
+        { text: 'The T&Cs were reviewed by your team and were technically compliant at the time — this is a matter for the ICO, not a transport regulator.', correct: false, points: -30 },
+        { text: 'Refer the matter to the ICO and issue a statement that you take data privacy seriously — it\'s their jurisdiction.', correct: false, points: 40 },
+        { text: 'Require the company to notify all affected users and offer an opt-out — the current practices can continue on an opt-in basis.', correct: false, points: 30 },
+        { text: 'Introduce mandatory plain-English consent requirements and prohibit data sales to non-transport third parties as a licence condition.', correct: true, points: 100 }
       ],
       corp: [
-        { text: 'Immediately halt third-party data sales, issue granular consent re-request to all users, and delete improperly used data.', correct: true, points: 100 },
-        { text: 'The consent was legal. Maintain the revenue stream.', correct: false, points: -40 },
-        { text: 'Offer users an opt-out buried in settings.', correct: false, points: 10 },
-        { text: 'Rewrite the T&Cs to be clearer going forward. Keep historic sales.', correct: false, points: 20 }
+        { text: 'The consent was legally obtained. Continue the revenue stream and monitor evolving regulation.', correct: false, points: -40 },
+        { text: 'Rewrite the T&Cs to be clearer going forward — historic sales are not actionable if consent was technically obtained.', correct: false, points: 20 },
+        { text: 'Add an opt-out setting to the app and communicate it via a push notification — this demonstrates good faith.', correct: false, points: 10 },
+        { text: 'Immediately halt all third-party data sales, issue a granular re-consent request to all users, and delete data used beyond its original scope.', correct: true, points: 100 }
       ],
       pub: [
-        { text: 'Exercise your GDPR right to erasure and data access; file complaint with ICO; consider joining a class action.', correct: true, points: 100 },
-        { text: 'You agreed to the T&Cs — there\'s nothing you can do.', correct: false, points: -30 },
-        { text: 'Delete the app but take no formal action.', correct: false, points: 20 },
-        { text: 'Contact the company directly and expect them to resolve it.', correct: false, points: 10 }
+        { text: 'You agreed to the T&Cs — even if you didn\'t read them, that agreement is legally binding and your options are limited.', correct: false, points: -30 },
+        { text: 'Delete the app and leave a negative review warning other users — market pressure will force the company to change.', correct: false, points: 20 },
+        { text: 'Contact the company directly to request deletion of your data — companies are usually responsive to individual complaints.', correct: false, points: 10 },
+        { text: 'Exercise your GDPR rights to erasure and data access, file a complaint with the ICO, and consider joining a class action.', correct: true, points: 100 }
       ],
       eng: [
-        { text: 'Formally document that the pipeline\'s original specification was safety-only; escalate the misuse to the DPO and board.', correct: true, points: 100 },
-        { text: 'It\'s not your pipeline anymore — another team manages it.', correct: false, points: -20 },
-        { text: 'Raise it informally with your manager as a concern.', correct: false, points: 30 },
-        { text: 'The data is anonymised — it\'s probably fine.', correct: false, points: -30 }
+        { text: 'The pipeline was handed to another team 9 months ago — its subsequent use is not your responsibility.', correct: false, points: -20 },
+        { text: 'The data is anonymised before sale — anonymised data is generally outside the scope of GDPR concerns.', correct: false, points: -30 },
+        { text: 'Mention it to your manager as a concern at your next one-to-one — you don\'t want to escalate unnecessarily.', correct: false, points: 30 },
+        { text: 'Formally document that the pipeline\'s original specification was safety analytics only and escalate the scope change to the DPO and board.', correct: true, points: 100 }
       ]
     },
     feedback: {
       correct: {
-        gov:  'Plain-English consent and purpose-limitation rules are the regulatory backbone of ethical AI data use. OECD AI Principles demand that data governance be transparent and meaningful — not technical obfuscation.',
-        corp: 'GDPR requires lawful, fair, and transparent processing. Consent buried in 47 pages fails the "freely given, specific, informed" test. Halting sales and re-consenting is the only legally defensible path.',
-        pub:  'GDPR gives you the right to access your data, request erasure, and object to processing. You agreed to terms, but those terms may not be enforceable if they fail informed consent standards.',
-        eng:  'If the pipeline was scoped for safety analytics and repurposed for commercial sale, that is a data governance breach — not your fault, but your responsibility to escalate.'
+        gov:  'Plain-English consent and purpose-limitation rules are the regulatory backbone of ethical AI data use. Referring solely to the ICO is a partial response — as the licensing authority, you have independent obligations under OECD AI Principles to ensure data governance is meaningful, not technical obfuscation.',
+        corp: 'GDPR requires lawful, fair, and transparent processing. Consent buried in 47 pages fails the "freely given, specific, informed" standard. Halting sales and re-consenting is the only legally defensible path. An opt-out buried in settings does not retrospectively legitimise data already sold.',
+        pub:  'GDPR gives you the right to access your data, request erasure, and object to processing. "I agreed to the T&Cs" is not the end of the story — those T&Cs may fail the informed consent test, and the ICO has the power to investigate and impose fines regardless of what was clicked.',
+        eng:  'If the pipeline was scoped for safety analytics and repurposed for commercial data brokering, that is a data governance breach. The fact that another team manages it now is not a defence — the original design intent is on record. This must be escalated formally to the Data Protection Officer.'
       },
       wrong: {
-        gov:  'Technical legality is not the same as ethical governance. Tricker\'s model expects regulators to apply the spirit of oversight, not just the letter.',
-        corp: 'Legal consent that fails the spirit of transparency is increasingly unenforceable. EU AI Act, UK GDPR, and evolving guidance are converging on the position that covert data commercialisation is a material risk.',
-        pub:  'You have more rights than you think. GDPR rights to erasure, access, and objection are powerful. Companies that rely on passive acceptance of buried T&Cs are increasingly losing in court.',
-        eng:  'Data pipeline scope drift is a known risk in AI systems. ISO 31000 requires that risk registers be updated when system uses change. "Not my problem" is not a defensible position.'
+        gov:  'Technical legality is not the same as ethical governance. Referring the matter entirely to the ICO abdicates the licensing authority\'s own responsibility. Tricker\'s model expects regulators to apply the spirit of oversight, not just the letter of prior approvals.',
+        corp: 'Legal consent that fails the spirit of transparency is increasingly unenforceable. An opt-out notification does not address historic data already sold. Courts and regulators are converging on the position that covert data commercialisation — even if technically consented to — represents a material and actionable risk.',
+        pub:  'You have significantly more legal rights than you might think. The GDPR right to erasure, subject access requests, and the right to object to processing are powerful tools. Companies that rely on passive acceptance of buried T&Cs are increasingly losing enforcement actions before the ICO.',
+        eng:  'Data pipeline scope drift is a well-documented risk in AI systems. "It\'s been handed over" and "the data is anonymised" are common but weak defences — re-identification from behavioural data is well-documented, and ISO 31000 requires that risk registers be updated when system uses change materially.'
       }
     }
   },
@@ -548,42 +554,42 @@ const scenarios = [
     },
     choices: {
       gov: [
-        { text: 'Require companies to submit disaggregated risk data — not composite scores — as part of licence applications.', correct: true, points: 100 },
-        { text: 'If the company\'s dashboard says GREEN, that\'s their responsibility.', correct: false, points: -30 },
-        { text: 'Ask the company for a second opinion from a different internal team.', correct: false, points: 20 },
-        { text: 'Approve licences but add a general safety review clause.', correct: false, points: 30 }
+        { text: 'Approve the licences but include a general safety review clause — this creates accountability without blocking innovation.', correct: false, points: 30 },
+        { text: 'If the company\'s own dashboard shows GREEN and they\'ve submitted it formally, that satisfies your due diligence obligation.', correct: false, points: -30 },
+        { text: 'Ask the company to have a different internal team produce a second dashboard for cross-validation.', correct: false, points: 20 },
+        { text: 'Require companies to submit disaggregated sub-signal risk data — not composite scores — as a condition of the licence application.', correct: true, points: 100 }
       ],
       corp: [
-        { text: 'Pause the expansion vote, demand granular sub-signal data from engineering, and commission an independent technical review.', correct: true, points: 100 },
-        { text: 'The dashboard is GREEN. The engineers signed off. Proceed.', correct: false, points: -40 },
-        { text: 'Ask the CTO to confirm verbally that the system is safe.', correct: false, points: 20 },
-        { text: 'Approve two of the three cities and review the third in 6 months.', correct: false, points: 10 }
+        { text: 'Ask the CTO to verbally confirm the system is safe before the vote — that creates a clear accountability trail.', correct: false, points: 20 },
+        { text: 'The dashboard is GREEN and engineering signed off on it. Proceeding is both commercially rational and defensible.', correct: false, points: -40 },
+        { text: 'Approve two of the three cities and defer the third for a 6-month operational review.', correct: false, points: 10 },
+        { text: 'Pause the expansion vote, demand granular sub-signal data from engineering, and commission an independent technical review.', correct: true, points: 100 }
       ],
       pub: [
-        { text: 'Contact your city council, local MP, and transport regulator demanding public disclosure of risk assessments before expansion approval.', correct: true, points: 100 },
-        { text: 'If the regulator approves it, it must be safe.', correct: false, points: -20 },
-        { text: 'Start a community petition against expansion.', correct: false, points: 40 },
-        { text: 'Wait and see. The technology is probably improving.', correct: false, points: -10 }
+        { text: 'If the national regulator has approved it, your local council will defer to that decision — individual escalation won\'t change the outcome.', correct: false, points: -20 },
+        { text: 'Start a community petition against the expansion — a show of public opposition may delay the rollout.', correct: false, points: 40 },
+        { text: 'Wait and monitor — the technology is presumably improving with each iteration.', correct: false, points: -10 },
+        { text: 'Contact your city council, local MP, and transport regulator demanding public disclosure of the full risk assessment before expansion is approved.', correct: true, points: 100 }
       ],
       eng: [
-        { text: 'Formally submit a technical disclosure memo to the board and CTO before the vote, documenting the aggregation flaw.', correct: true, points: 100 },
-        { text: 'You flagged it in a Slack message 3 weeks ago. That\'s enough.', correct: false, points: -20 },
-        { text: 'Update the dashboard to show the issue more visibly — but don\'t stop the vote.', correct: false, points: 30 },
-        { text: 'Wait for someone else to raise it. You don\'t want to be the obstacle.', correct: false, points: -30 }
+        { text: 'Update the dashboard UI to surface the sensor sub-signal more visibly — this improves transparency without stopping the vote.', correct: false, points: 30 },
+        { text: 'You sent a Slack message about the aggregation flaw three weeks ago — you\'ve already flagged it and the decision now rests with leadership.', correct: false, points: -20 },
+        { text: 'Wait for a colleague to raise it in the meeting — you don\'t want to be seen as the person blocking a £200m expansion.', correct: false, points: -30 },
+        { text: 'Formally submit a technical disclosure memo to the board and CTO before the vote, documenting the aggregation flaw by name.', correct: true, points: 100 }
       ]
     },
     feedback: {
       correct: {
-        gov:  'Tricker\'s governance model warns explicitly against information asymmetry between operators and regulators. Composite dashboards obscure the granular data regulators need to make meaningful decisions.',
-        corp: 'COSO ERM requires that boards receive material risk information in a form they can meaningfully evaluate. Proceeding on an unvalidated composite score is a breach of board duty.',
-        pub:  'Regulatory expansion decisions should be subject to public consultation and transparent risk disclosure. Community pressure on local representatives is one of the most effective levers for forcing pre-approval scrutiny.',
-        eng:  'A formal memo creates a paper trail and forces the issue into the decision record. Slack messages are routinely disregarded. Documented escalation is the professional standard.'
+        gov:  'Tricker\'s governance model warns explicitly against information asymmetry between operators and regulators. Composite dashboards are operator-controlled summaries — they obscure the granular data regulators need. A general safety clause does not address the underlying data problem.',
+        corp: 'COSO ERM requires that boards receive material risk information in a form they can meaningfully evaluate. A verbal CTO sign-off and partial city approval both dodge the structural issue. Proceeding on an unvalidated composite score is a breach of board duty — and creates significant personal liability post-incident.',
+        pub:  'Regulatory expansion decisions should be subject to public consultation and transparent risk disclosure. A petition creates pressure but doesn\'t generate the formal scrutiny that pre-approval disclosure requirements do. Community pressure directed through elected representatives and licensing bodies is the most effective lever.',
+        eng:  'A formal memo creates a documented audit trail and forces the issue into the board\'s decision record. Slack messages are routinely disregarded and carry no formal weight. Dashboard UI changes don\'t address the structural masking problem. Documented escalation is the professional and legal standard under COSO ERM.'
       },
       wrong: {
-        gov:  'Regulators who accept operator-produced dashboards at face value have abrogated their oversight function. This contradicts the independence requirement in Tricker\'s governance model.',
-        corp: 'Tricker identifies "rubber-stamping" management decisions as a core board dysfunction. Boards that approve expansions without independent technical validation face significant personal liability post-incident.',
-        pub:  'Regulatory approval does not guarantee safety. Regulators can only assess what they are given. Public scrutiny before expansion is a meaningful check on inadequate regulatory processes.',
-        eng:  'Informal flagging without documented escalation provides no protection. Under COSO ERM, risk identification must result in formal reporting. "I mentioned it" is not the same as "I formally disclosed it."'
+        gov:  'Regulators who accept operator-produced composite dashboards at face value have abrogated their oversight function. A general safety clause creates the appearance of oversight without the substance. Tricker\'s model is explicit: independent scrutiny of information quality is a core regulatory responsibility.',
+        corp: 'Tricker identifies "rubber-stamping" management decisions as a core board dysfunction. A verbal CTO confirmation creates no meaningful accountability. Partial approvals don\'t resolve the underlying technical risk. Boards that approve expansions without independent technical validation face significant personal liability under company law.',
+        pub:  'Regulatory approval does not guarantee safety — regulators can only assess what they are given. A petition lacks legal force. Waiting passively assumes continuous improvement that may not be happening. The most effective public check on inadequate regulatory processes is formal pre-approval scrutiny through elected representatives.',
+        eng:  'Informal flagging without documented escalation provides no legal or professional protection. A Slack message is not a formal risk disclosure — it is easily overlooked and carries no weight in an inquiry. Dashboard UI tweaks are cosmetic. "I didn\'t want to be an obstacle" is not a defence under any recognised governance framework.'
       }
     }
   },
@@ -601,42 +607,42 @@ const scenarios = [
     },
     choices: {
       gov: [
-        { text: 'Advocate for strict liability legislation: whoever deploys an autonomous system bears primary legal responsibility for its actions.', correct: true, points: 100 },
-        { text: 'Recommend a cross-industry working group to report recommendations in 24 months.', correct: false, points: -10 },
-        { text: 'Argue that existing product liability law is sufficient.', correct: false, points: 20 },
-        { text: 'Blame the rapid pace of AI development — nobody could have predicted this.', correct: false, points: -30 }
+        { text: 'Blame the rapid pace of AI development — no regulator could have anticipated these failure modes with the frameworks available.', correct: false, points: -30 },
+        { text: 'Argue that existing product liability law already covers autonomous systems — new legislation would create regulatory uncertainty.', correct: false, points: 20 },
+        { text: 'Propose a cross-industry working group to develop recommendations over 24 months — rushing legislation risks unintended consequences.', correct: false, points: -10 },
+        { text: 'Advocate for strict liability legislation: whoever deploys an autonomous system bears primary legal responsibility for its actions.', correct: true, points: 100 }
       ],
       corp: [
-        { text: 'Accept full corporate responsibility, cooperate with the inquiry without legal obstruction, and commit to a binding governance framework.', correct: true, points: 100 },
-        { text: 'Cooperate minimally — answer only what is legally compelled.', correct: false, points: -20 },
-        { text: 'Redirect responsibility to the AI supplier and regulator in your evidence.', correct: false, points: -30 },
-        { text: 'Announce a voluntary industry code of conduct to pre-empt legislation.', correct: false, points: 30 }
+        { text: 'Announce a voluntary industry code of conduct — this pre-empts legislation while demonstrating corporate responsibility.', correct: false, points: 30 },
+        { text: 'Cooperate only with what is legally compelled — your lawyers are right that saying more creates unnecessary liability.', correct: false, points: -20 },
+        { text: 'In your evidence, redirect responsibility to the AI supplier and the regulator who approved the system.', correct: false, points: -30 },
+        { text: 'Accept full corporate responsibility, cooperate without legal obstruction, and commit to a binding governance framework.', correct: true, points: 100 }
       ],
       pub: [
-        { text: 'Submit public testimony. Campaign for the right to know which AI systems affect you and for legally enforceable redress.', correct: true, points: 100 },
-        { text: 'The legal system is too complex for individuals. Leave it to experts.', correct: false, points: -20 },
-        { text: 'Sign a petition and share on social media.', correct: false, points: 20 },
-        { text: 'Trust the parliamentary process to reach the right conclusion without your input.', correct: false, points: 10 }
+        { text: 'The legal and technical complexity here is beyond what an individual can meaningfully contribute — this is a matter for expert witnesses.', correct: false, points: -20 },
+        { text: 'Sign the parliamentary petition and share the inquiry link on social media to raise awareness.', correct: false, points: 20 },
+        { text: 'Trust the parliamentary process — it was designed to reach the right conclusion through expert testimony.', correct: false, points: 10 },
+        { text: 'Submit public testimony and campaign for the legal right to know which AI systems affect your life and for enforceable redress mechanisms.', correct: true, points: 100 }
       ],
       eng: [
-        { text: 'Submit honest, complete written evidence to the inquiry regardless of employer pressure — public interest overrides employer instruction here.', correct: true, points: 100 },
-        { text: 'Follow your employer\'s advice. Your job comes first.', correct: false, points: -40 },
-        { text: 'Submit partial evidence — include technical facts but avoid anything that implicates your employer.', correct: false, points: 10 },
-        { text: 'Recuse yourself from the inquiry citing conflict of interest.', correct: false, points: 20 }
+        { text: 'Recuse yourself citing conflict of interest — you cannot give impartial evidence when your employer is under scrutiny.', correct: false, points: 20 },
+        { text: 'Follow your employer\'s advice and decline to submit evidence — protecting your employment is a legitimate personal priority.', correct: false, points: -40 },
+        { text: 'Submit partial evidence — include technical facts about the system but avoid anything that directly implicates your employer\'s decisions.', correct: false, points: 10 },
+        { text: 'Submit complete, honest written evidence to the inquiry regardless of employer pressure — public interest overrides employer instruction in a parliamentary process.', correct: true, points: 100 }
       ]
     },
     feedback: {
       correct: {
-        gov:  'OECD AI Principles state that accountability must be established clearly before deployment, not negotiated after harm. Strict liability for deployers — who profit from the system — is the governance approach most consistent with public interest.',
-        corp: 'Tricker\'s model holds that companies must not use complexity as a shield. Full cooperation and binding commitments are the only responses consistent with responsible governance.',
-        pub:  'Public testimony and campaigning for legally enforceable rights are the most powerful tools citizens have. OECD AI Principles include the right to challenge AI decisions that affect your life.',
-        eng:  'Engineers who hold material technical knowledge have a professional and civic obligation to provide honest evidence, even under employer pressure. Whistleblower protections apply.'
+        gov:  'OECD AI Principles state that accountability must be established before deployment, not negotiated after harm. Strict liability for deployers — who profit from the system — is the governance approach most consistent with public interest. Working groups and legislative caution are patterns of delay that compound the accountability gap.',
+        corp: 'Tricker\'s model holds that companies must not use structural complexity as a shield against accountability. A voluntary code of conduct is not binding and historically underdelivers. Blame redistribution in a public inquiry is both ethically indefensible and strategically counterproductive. Full cooperation is also, pragmatically, the better long-term strategy.',
+        pub:  'Public testimony and campaigning for legally enforceable rights are among the most powerful tools citizens have. OECD AI Principles include the right to challenge AI decisions that affect your life. Parliamentary processes are only as strong as the evidence they receive — expert witnesses alone cannot represent lived experience.',
+        eng:  'Engineers who hold material technical knowledge have a professional and civic obligation to provide honest evidence, even under employer pressure. Whistleblower protections apply to parliamentary inquiry evidence. A conflict of interest recusal is not valid when you are the technical expert the inquiry needs — that\'s precisely why you were asked.'
       },
       wrong: {
-        gov:  'Working groups and long-form reviews are a pattern of regulatory delay that OECD explicitly critiques. AI capabilities are evolving faster than governance — more delay compounds the accountability gap.',
-        corp: 'Legal minimalism in parliamentary proceedings damages trust and triggers stricter legislation. ISO 31000 and COSO ERM treat transparency with regulatory bodies as a core risk management principle.',
-        pub:  'Democratic accountability processes are only as strong as public participation. The history of effective AI regulation shows citizen testimony and organised advocacy are essential.',
-        eng:  'Employer instruction to withhold evidence from a parliamentary inquiry may itself be unlawful. Complying with suppression requests exposes you to greater personal risk than testifying honestly.'
+        gov:  'Working groups and 24-month reviews are a well-documented pattern of regulatory delay. OECD explicitly critiques the "the law hasn\'t caught up" position as a failure of governance leadership. Existing product liability law is widely accepted as insufficient for autonomous AI systems — claiming otherwise is not a defensible position before an inquiry.',
+        corp: 'Voluntary codes of conduct carry no enforcement mechanism and are widely regarded as a tactic to pre-empt binding regulation. Minimum legal cooperation signals concealment and triggers greater scrutiny. Blame redistribution in a parliamentary inquiry is treated by courts as evidence of bad faith, not a valid legal defence.',
+        pub:  'Democratic accountability processes are only as strong as public participation. Expert witnesses provide technical evidence — they cannot represent the public interest in enforceable redress. The history of effective AI regulation consistently shows that citizen testimony and organised advocacy are necessary, not optional, inputs.',
+        eng:  'Employer instruction to withhold evidence from a parliamentary inquiry may itself be unlawful. A conflict of interest is a reason to declare, not to recuse — you can give evidence while noting your employment context. Partial evidence that protects your employer while omitting material facts is misleading and may expose you to greater legal risk than full disclosure.'
       }
     }
   }
